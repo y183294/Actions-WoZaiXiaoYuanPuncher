@@ -95,12 +95,14 @@ class WoZaiXiaoYuanPuncher:
         res = json.loads(response.text)
         # 如果 jwsession 无效，则重新 登录 + 打卡
         if res["code"] == -10:
+            print(res)
             print("jwsession 无效，将尝试使用账号信息重新登录")
             self.status_code = 4
             loginStatus = self.login()
             if loginStatus:
                 self.PunchIn()
             else:
+                print(res)
                 print("重新登录失败，请检查账号信息")
         elif res["code"] == 0:
             # 标志时段是否有效
@@ -132,10 +134,14 @@ class WoZaiXiaoYuanPuncher:
         self.header["Content-Type"] = "application/x-www-form-urlencoded"
         self.header["JWSESSION"] = self.getJwsession()
         cur_time = int(round(time.time() * 1000))
+        if os.environ['WZXY_TEMPERATURE']:
+            TEMPERATURE = utils.getRandomTemperature(os.environ['WZXY_TEMPERATURE'])
+        else:
+            TEMPERATURE = utils.getRandomTemperature('36.0~36.5')
         sign_data = {
-            "answers": '["0"]',
+            "answers": '["0"]', # 在此自定义answers字段
             "seq": str(seq),
-            "temperature": utils.getRandomTemperature(os.environ["WZXY_TEMPERATURE"]),
+            "temperature": TEMPERATURE,
             "latitude": os.environ["WZXY_LATITUDE"],
             "longitude": os.environ["WZXY_LONGITUDE"],
             "country": os.environ["WZXY_COUNTRY"],
@@ -146,10 +152,10 @@ class WoZaiXiaoYuanPuncher:
             "street": os.environ["WZXY_STREET"],
             "myArea": "",
             "areacode": "",
+            "citycode": os.environ["WZXY_CITYCODE"],
             "userId": "",
-            "city_code": os.environ["WZXY_CITY_CODE"],
             "timestampHeader": cur_time,
-            "signature": hashlib.sha256(
+            "signatureHeader": hashlib.sha256(
                 f"{os.environ['WZXY_PROVINCE']}_{cur_time}_{os.environ['WZXY_CITY']}".encode(
                     "utf-8"
                 )
@@ -212,7 +218,7 @@ class WoZaiXiaoYuanPuncher:
                 ),
             }
             requests.post(url.format(notifyToken), data=body)
-            print("消息经Serverchan-Turbo推送成功")
+            print("消息已通过 Serverchan-Turbo 推送，请检查推送结果")
         if os.environ.get("PUSHPLUS_TOKEN"):
             # pushplus 推送
             url = "http://www.pushplus.plus/send"
@@ -232,16 +238,13 @@ class WoZaiXiaoYuanPuncher:
                 "content": content,
                 "template": "json",
             }
-            requests.post(url, data=msg)
-            print("消息经pushplus推送成功")
-        if os.environ.get("DD_BOT_ACCESS_TOKEN"):
             body=json.dumps(msg).encode(encoding='utf-8')
             headers = {'Content-Type':'application/json'}
             r = requests.post(url, data=body, headers=headers).json()
             if r["code"] == 200:
                 print("消息经 pushplus 推送成功")
             else:
-                print("pushplus: " + r['code'] + ": " + r['msg'])
+                print("pushplus: " + str(r['code']) + ": " + str(r['msg']))
                 print("消息经 pushplus 推送失败，请检查错误信息")
         if os.environ.get('GOBOT_URL'):
             # go_cqhttp 推送
@@ -253,7 +256,7 @@ class WoZaiXiaoYuanPuncher:
             if r["status"] == "ok":
                 print("消息经 go-cqhttp 推送成功！")
             else:
-                print("go-cqhttp:" + r['retcode'] + ": " + r['msg'] + " " + r['wording'])
+                print("go-cqhttp:" + str(r['retcode']) + ": " + str(r['msg']) + " " + str(r['wording']))
                 print("消息经 go-cqhttp 推送失败，请检查错误信息")
         if os.environ.get('DD_BOT_ACCESS_TOKEN'):
             # 钉钉推送
@@ -276,18 +279,11 @@ class WoZaiXiaoYuanPuncher:
                     "content": f"⏰ 我在校园打卡结果通知\n---------\n打卡项目：日检日报\n\n打卡情况：{notifyResult}\n\n打卡时间: {notifyTime}"
                 },
             }
-            response = requests.post(
-                url=url, data=json.dumps(data), headers=headers, timeout=15
-            ).json()
-            if not response["errcode"]:
-                print("消息经钉钉机器人推送成功！")
             r = requests.post(url=url, data=json.dumps(data), headers=headers, timeout=15).json()
             if not r['errcode']:
                 print('消息经 钉钉机器人 推送成功！')
             else:
-                print("消息经钉钉机器人推送失败！")
-        if os.environ.get("BARK_TOKEN"):
-                print("dingding:" + r['errcode'] + ": " + r['errmsg'])
+                print("dingding:" + str(r['errcode']) + ": " + str(r['errmsg']))
                 print('消息经 钉钉机器人 推送失败，请检查错误信息')
         if os.environ.get('BARK_TOKEN'):
             # bark 推送
