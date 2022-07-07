@@ -7,7 +7,7 @@ on:
 
   schedule:
   # Github Action 使用世界标准时间（UTC），北京时间（UTC+8）转换为世界标准时需要减去8小时
-    - cron:  '5 4,16 * * *' # 默认在每天 UTC 12:30 和 23:30 （北京时间 20:30 和 7:30）执行
+    - cron:  '5 4,16 * * *' # 默认在每天 UTC 23:30 （北京时间 7:30）执行
 
 jobs:
   USER_01:
@@ -48,7 +48,7 @@ jobs:
         WZXY_PROVINCE: ${{secrets.PROVINCE}}
         WZXY_TOWNSHIP: ${{secrets.TOWNSHIP}}
         WZXY_STREET: ${{secrets.STREET}}
-        WZXY_CITY_CODE: ${{secrets.CITY_CODE}}
+        WZXY_CITYCODE: ${{secrets.CITYCODE}}
       run: python wzxy-dailyreport.py
   
   ## 多账户配置示例，请复制下面的代码后取消注释再修改，粘贴时注意缩进
@@ -73,6 +73,8 @@ jobs:
   #       restore-keys: ${{ secrets.CACHE_NAME }}-
   #   - name: Run script
   #     env:
+  #       DD_BOT_ACCESS_TOKEN: ${{secrets.DD_BOT_ACCESS_TOKEN}}
+  #       DD_BOT_SECRET: ${{secrets.DD_BOT_SECRET}}
   #       SCT_KEY: ${{secrets.SCT_KEY}}
   #       BARK_TOKEN: ${{secrets.BARK_TOKEN}}
   #       PUSHPLUS_TOKEN: ${{secrets.PUSHPLUS_TOKEN}}
@@ -87,5 +89,6 @@ jobs:
   #       WZXY_DISTRICT: ${{secrets.DISTRICT}}
   #       WZXY_PROVINCE: ${{secrets.PROVINCE}}
   #       WZXY_TOWNSHIP: ${{secrets.TOWNSHIP}}
-  #       WZXY_STREET: ${{secrets.STREET}}    
-  #     run: python wzxy-dailyreport.py      
+  #       WZXY_STREET: ${{secrets.STREET}}
+  #       WZXY_CITY_CODE: ${{secrets.CITY_CODE}}
+  #     run: python wzxy-dailyreport.py        
