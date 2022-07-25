@@ -139,7 +139,7 @@ class WoZaiXiaoYuanPuncher:
         else:
             TEMPERATURE = utils.getRandomTemperature('36.0~36.5')
         sign_data = {
-            "answers": '["0"]', # 在此自定义answers字段
+            "answers": '["0","1"]', # 在此自定义answers字段
             "seq": str(seq),
             "temperature": TEMPERATURE,
             "latitude": os.environ["WZXY_LATITUDE"],
