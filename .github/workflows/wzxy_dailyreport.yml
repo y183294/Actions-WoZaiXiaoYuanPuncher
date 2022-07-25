@@ -91,4 +91,4 @@ jobs:
   #       WZXY_TOWNSHIP: ${{secrets.TOWNSHIP}}
   #       WZXY_STREET: ${{secrets.STREET}}
   #       WZXY_CITY_CODE: ${{secrets.CITY_CODE}}
-  #     run: python wzxy-dailyreport.py        
+  #     run: python wzxy-dailyreport.py      
