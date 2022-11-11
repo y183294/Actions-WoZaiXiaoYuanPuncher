@@ -105,7 +105,7 @@ class WoZaiXiaoYuanPuncher(utils.Data):
         self.header["JWSESSION"] = self.jwsession
         cur_time = int(round(time.time() * 1000))
         sign_data = {
-            "answers": '["0"]',  # 在此自定义answers字段
+            "answers": '["0","陕西省西安市未央区学府中路二号西安工业大学","1"]',  # 在此自定义answers字段
             "seq": str(seq),
             "temperature": utils.getRandomTemperature("36.0~36.5"),
             "userId": "",
